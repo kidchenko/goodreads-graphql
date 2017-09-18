@@ -5,20 +5,37 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLInt,
-  GraphQLString
+  GraphQLString,
+  GraphQLList
 } = require("graphql");
 const config = require("./config");
 
-fetch(`https://www.goodreads.com/author/show.xml?id=4432&key=${config.KEY}`)
-  .then(response => response.text())
-  .then(parseXML);
+const BookType = new GraphQLObjectType({
+  name: "Book",
+  description: "...",
+  fields: () => ({
+    title: {
+      type: GraphQLString,
+      resolve: xml => xml.title[0]
+    },
+    isbn: {
+      type: GraphQLString,
+      resolve: xml => (typeof xml.isbn[0] == "string" ? xml.isbn[0] : "")
+    }
+  })
+});
 
 const AuthorType = new GraphQLObjectType({
   name: "Author",
   description: "...",
   fields: () => ({
     name: {
-      type: GraphQLString
+      type: GraphQLString,
+      resolve: xml => xml.GoodreadsResponse.author[0].name[0]
+    },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve: xml => xml.GoodreadsResponse.author[0].books[0].book
     }
   })
 });
@@ -32,7 +49,13 @@ module.exports = new GraphQLSchema({
         type: AuthorType,
         args: {
           id: { type: GraphQLInt }
-        }
+        },
+        resolve: (root, args) =>
+          fetch(
+            `https://www.goodreads.com/author/show.xml?id=${args.id}&key=${config.KEY}`
+          )
+            .then(response => response.text())
+            .then(parseXML)
       }
     })
   })
