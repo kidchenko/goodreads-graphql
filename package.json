@@ -1,10 +1,11 @@
 {
-  "name": "graphql-goodreads",
+  "name": "goodreads-graphql",
   "version": "1.0.0",
   "main": "server.js",
-  "repository": "https://github.com/kidchenko/graphql-goodreads.git",
+  "repository": "https://github.com/kidchenko/goodreads-graphql.git",
   "author": "kidchenko <kidchenko@gmail.com>",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "node server",
     "dev": "nodemon",
